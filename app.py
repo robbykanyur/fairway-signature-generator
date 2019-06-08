@@ -21,7 +21,7 @@ print("""\
 def promptForSigColor():
     return input('Color ([B]lue, [G]reen, [D]ark) - ').upper()
 
-def testSigColorValid(sig_color):
+def validateSigColor(sig_color):
     valid_colors = ['B','G','D']
     for color in valid_colors:
         if (sig_color == color):
@@ -30,40 +30,68 @@ def testSigColorValid(sig_color):
 
 def getSigColor():
     sig_color = promptForSigColor()
-    sig_color_valid = testSigColorValid(sig_color)
+    sig_color_valid = validateSigColor(sig_color)
 
     while (sig_color_valid != True):
         print('That is not a valid option.')
         sig_color = promptForSigColor()
-        sig_color_valid = testSigColorValid(sig_color)
+        sig_color_valid = validateSigColor(sig_color)
 
     return sig_color
 
-def promptForLinesOfContent():
-    return int(input('LinesOfContent (4, 6) - '))
+def promptForSigIcon():
+    return input('[B]est Company, [M]ilitary, [R]everse - ').upper()
 
-def testLinesOfContentValid(lines_of_content):
+def validateSigIcon(sig_icon):
+    valid_values = ['B','M','R']
+    for value in valid_values:
+        if (sig_icon == value):
+            return True;
+    return False;
+
+def getSigIcon():
+    sig_icon = promptForSigIcon()
+    sig_icon_valid = validateSigIcon(sig_icon)
+
+    while (sig_icon_valid != True):
+        print('That is not a valid option.')
+        sig_icon = promptForSigIcon()
+        sig_icon_valid = validateSigIcon(sig_icon)
+
+    return sig_icon
+
+def promptForNumberOfLines():
+    return int(input('NumberOfLines (4, 6) - '))
+
+def validateNumberOfLines(lines_of_content):
     valid_values = [4, 6]
     for value in valid_values:
         if (lines_of_content == value):
             return True;
     return False;
 
-def getLinesOfContent():
-    lines_of_content = promptForLinesOfContent()
-    lines_of_content_valid = testLinesOfContentValid(lines_of_content)
+def getNumberOfLines():
+    lines_of_content = promptForNumberOfLines()
+    lines_of_content_valid = validateNumberOfLines(lines_of_content)
 
     while (lines_of_content_valid != True):
         print('That is not a valid option.')
-        lines_of_content = promptForLinesOfContent()
-        lines_of_content_valid = testLinesOfContentValid(lines_of_content)
+        lines_of_content = promptForNumberOfLines()
+        lines_of_content_valid = validateNumberOfLines(lines_of_content)
 
     return lines_of_content
 
+def getContentData(lines):
+    content_data = []
+    for x in range(1,(lines + 1)):
+        content_data.append(input('    - Content for Line ' + str(x) + ' - '))
+    return content_data
+
 def main():
     sig_color = getSigColor()
-    lines_of_content = getLinesOfContent()
-    print(lines_of_content)
+    sig_icon = getSigIcon()
+    lines_of_content = getNumberOfLines()
+    content_data = getContentData(lines_of_content)
 
 if __name__ == '__main__':
     main()
