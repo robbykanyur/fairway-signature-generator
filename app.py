@@ -1,3 +1,9 @@
+import os
+from os import path
+import boto3
+import botocore
+import re
+
 print("""\
 
 ------------------------------------------------------------------------------
@@ -182,8 +188,30 @@ def getData():
 
     return data
 
+def getPhotoPath():
+    photo_exists = False
+    while (photo_exists == False):
+        photo_path = input('Absolute path to profile photo: ')
+        if (path.exists(photo_path)):
+            break
+        else:
+            print('That file does not exist.')
+    return(photo_path)
+
+def uploadProfilePhoto():
+    photo_path = getPhotoPath()
+    photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
+
+    s3 = boto3.resource('s3')
+    try:
+        s3.Object('fairway-salesforce', 'signatures/' + photo_filename[0]).load()
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            s3.meta.client.upload_file(photo_path, 'fairway-salesforce', 'signatures/' + photo_filename[0])
+
 def main():
-    data = getData()
+    # data = getData()
+    uploadProfilePhoto()
 
 if __name__ == '__main__':
     main()
