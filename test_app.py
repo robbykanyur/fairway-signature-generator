@@ -1,37 +1,46 @@
 import app
 
-def testIncorrectColors():
-    response = app.validateSigColor('a')
-    assert response == False
-
-def testCorrectColors():
-    response_01 = app.validateSigColor('B')
-    response_02 = app.validateSigColor('G')
-    response_03 = app.validateSigColor('D')
+def testColors():
+    valid_inputs = ['B','G','D']
+    response = app.validateInput('a', valid_inputs)
+    response_01 = app.validateInput('B', valid_inputs)
+    response_02 = app.validateInput('G', valid_inputs)
+    response_03 = app.validateInput('D', valid_inputs)
+    response_04 = app.validateInput('a', valid_inputs)
     assert response_01 == True
     assert response_02 == True
     assert response_03 == True
+    assert response_04 == False
 
-def testIncorrectIcons():
-    response = app.validateSigIcon('b')
-    assert response == False
+def testTypes():
+    valid_inputs = ['SALES','OPS']
+    response = app.validateInput('a', valid_inputs)
+    response_01 = app.validateInput('SALES', valid_inputs)
+    response_02 = app.validateInput('OPS', valid_inputs)
+    response_03 = app.validateInput('b', valid_inputs)
+    assert response_01 == True
+    assert response_02 == True
+    assert response_03 == False
 
-def testCorrectIcon():
-    response_01 = app.validateSigIcon('B')
-    response_02 = app.validateSigIcon('M')
-    response_03 = app.validateSigIcon('R')
+def testIcons():
+    valid_inputs = ['B','M','R']
+    response = app.validateInput('a', valid_inputs)
+    response_01 = app.validateInput('B', valid_inputs)
+    response_02 = app.validateInput('M', valid_inputs)
+    response_03 = app.validateInput('R', valid_inputs)
+    response_04 = app.validateInput('c', valid_inputs)
     assert response_01 == True
     assert response_02 == True
     assert response_03 == True
+    assert response_04 == False
 
 
-def testIncorrectLines():
-    response = app.validateNumberOfLines(8)
-    assert response == False
-
-def testCorrectLines():
-    response_01 = app.validateNumberOfLines(4)
-    response_02 = app.validateNumberOfLines(6)
+def testLines():
+    valid_inputs = [4,6]
+    response_01 = app.validateInput(4, valid_inputs)
+    response_02 = app.validateInput(6, valid_inputs)
+    response_03 = app.validateInput(8, valid_inputs)
     assert response_01 == True
     assert response_02 == True
+    assert response_03 == False
 
