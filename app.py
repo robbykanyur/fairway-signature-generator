@@ -3,6 +3,9 @@ from os import path
 import boto3
 import botocore
 import re
+import json
+import shutil
+from shutil import copyfile
 
 print("""\
 
@@ -174,7 +177,6 @@ def getData():
 
     data['displayName'] = input('Display Name: ')
     data['filename'] = input('Output Filename: ')
-    data['displayTitle'] = input('Display Title: ')
 
     lines_of_content = getNumberOfLines()
     data['content'] = getContentData(lines_of_content)
@@ -198,7 +200,7 @@ def getPhotoPath():
             print('That file does not exist.')
     return(photo_path)
 
-def uploadProfilePhoto():
+def uploadProfilePhoto(data):
     photo_path = getPhotoPath()
     photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
 
@@ -209,9 +211,119 @@ def uploadProfilePhoto():
         if e.response['Error']['Code'] == "404":
             s3.meta.client.upload_file(photo_path, 'fairway-salesforce', 'signatures/' + photo_filename[0])
 
+    data['photo'] = photo_filename
+    return data
+
+def loadJSON():
+    with open('variables.json', 'r') as file:
+        filedata = file.read().replace('\n','')
+    variables = json.loads(filedata)
+    return variables
+
+def testData():
+    data = {
+        'type': 'SALES', 
+        'color': 'B', 
+        'icon': 'B', 
+        'displayName': 'Robert Kanyur', 
+        'filename': 'kanyur-robert', 
+        'content': [
+            'Marketing Manager',
+            'Phone: 480-346-1371', 
+            'Fax: 888-676-7807', 
+            'www.fairway321.com',
+            '17851 N. 85th St. #250', 
+            'Scottsdale, AZ 85255'], 
+        'links': [
+            'http://google.com', 
+            'http://google.com'], 
+        'social': [
+            ['facebook', 'http://facebook.com'], 
+            ['instagram', 'http://instagram.com']
+        ], 
+        'photo': ['profile-brady-jessica.png']
+    }
+    return data
+
+def buildTemplate(data, variables):
+    # create src and dist variables
+    src_dir = os.getcwd()
+    dist_dir = src_dir + '/dist/' + data['filename']
+    dist_file = dist_dir + '/index.html'
+
+    # clean output directory
+    if os.path.isdir(src_dir + '/dist'):
+        shutil.rmtree(src_dir + '/dist')
+    os.makedirs(dist_dir)
+
+    # copy base file
+    copyfile(src_dir + '/templates/base.html', dist_dir + '/index.html')
+
+    # insert content section
+    with open(dist_file, 'r') as file:
+        filedata = file.read()
+
+    if (len(data['content']) == 6):
+        with open(src_dir + '/templates/content_06.html', 'r') as file:
+            contentdata = file.read()
+    else:
+        with open(src_dir + '/templates/content_04.html', 'r') as file:
+            contentdata = file.read()
+
+    filedata = filedata.replace('{% CONTENT %}', contentdata)
+    with open(dist_file, 'w') as file:
+        file.write(filedata)
+
+    # insert social section
+    with open(dist_file, 'r') as file:
+        filedata = file.read()
+
+    if (len(data['social']) == 1):
+        with open(src_dir + '/templates/social_01.html', 'r') as file:
+            socialdata = file.read()
+    elif (len(data['social']) == 2):
+        with open(src_dir + '/templates/social_02.html', 'r') as file:
+            socialdata = file.read()
+    elif (len(data['social']) == 3):
+        with open(src_dir + '/templates/social_03.html', 'r') as file:
+            socialdata = file.read()
+    elif (len(data['social']) == 4):
+        with open(src_dir + '/templates/social_04.html', 'r') as file:
+            socialdata = file.read()
+    elif (len(data['social']) == 5):
+        with open(src_dir + '/templates/social_05.html', 'r') as file:
+            socialdata = file.read()
+    else:
+        socialdata = ''
+
+    filedata = filedata.replace('{% SOCIAL %}', socialdata)
+    with open(dist_file, 'w') as file:
+        file.write(filedata)
+
+    # find and replace
+    with open(dist_file, 'r') as file:
+        filedata = file.read()
+
+    filedata = filedata.replace('{% AWS %}', variables['aws'])
+    filedata = filedata.replace('{% PROFILE_FILENAME %}', data['photo'][0])
+    filedata = filedata.replace('{% CONTACT_NAME %}', data['displayName'])
+    for x in range(len(data['content'])):
+        filedata = filedata.replace('{% CONTENT_0' + str((x + 1)) + ' %}', data['content'][x])
+
+    if (data['type'] == 'SALES'):
+        filedata = filedata.replace('{% APPLICATION %}', data['links'][0])
+        filedata = filedata.replace('{% FAIRWAY_NOW %}', data['links'][1])
+
+    with open(dist_file, 'w') as file:
+        file.write(filedata)
+
 def main():
     # data = getData()
-    uploadProfilePhoto()
+    # data = uploadProfilePhoto(data)
+
+    data = testData()
+    variables = loadJSON()
+    buildTemplate(data, variables)
 
 if __name__ == '__main__':
     main()
