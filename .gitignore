@@ -122,4 +122,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom
 .aws/
+.vscode/
