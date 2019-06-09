@@ -3,6 +3,7 @@ from os import path
 import boto3
 import botocore
 import re
+import csv
 import json
 import shutil
 from shutil import copyfile
@@ -10,7 +11,6 @@ from paramiko import SSHClient
 from scp import SCPClient
 import sys
 from templates import populate
-from bulk import bulkImport
 
 print("""\
 
@@ -420,6 +420,95 @@ def uploadToServer(data):
         print ('Uploading ' + foldername + ' to prod server...')
         os.system('scp -r ' + foldername + ' deploy@prod:html/fairway321.com/signatures')
 
+def bulkBuild(data, variables):
+    for x in range(0, len(data)):
+        dirs = setupDirectories(data[x])
+        instance = data[x]
+        buildTemplate(instance, variables, dirs)
+        print('Generating ' + instance['filename'] + '...')
+
+def generateEmptyObject():
+    data = {
+        'displayName': '',
+        'filename': '',
+        'type': '',
+        'color': '',
+        'icon': '',
+        'content': [],
+        'links': [],
+        'social': [],
+        'photo': []
+    }
+    return data
+
+def bulkImport(csv_file):
+    data = []
+    with open(csv_file) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            instance = generateEmptyObject()
+            if line_count < 2:
+                line_count += 1
+            else:
+                instance['displayName'] = row[0].lower()
+                instance['filename'] = row[1].lower()
+                instance['type'] = row[2].lower()
+                photo_path = row[23].lower()
+                photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
+                instance['photo'] = photo_filename
+                instance['content'].append(row[5])
+                instance['content'].append(row[6])
+                instance['content'].append(row[7])
+                instance['content'].append(row[8])
+                if row[3].lower() == 'blue':
+                    instance['color'] = 'B'
+                elif row[3].lower() == 'green':
+                    instance['color'] = 'G'
+                elif row[3].lower() == 'gray':
+                    instance['color'] = 'D'
+                if row[4].lower() == 'best':
+                    instance['icon'] = 'B'
+                elif row[4].lower() == 'reverse':
+                    instance['icon'] = 'R'
+                elif row[4].lower() == 'military':
+                    instance['icon'] = 'M'
+                if row[9] != '':
+                    instance['content'].append(row[9])
+                    instance['content'].append(row[10])
+                if instance['type'] == 'sales':
+                    instance['links'].append(row[11])
+                    instance['links'].append(row[12])
+                if row[13] != '':
+                    social_one = []
+                    social_one.append(row[13])
+                    social_one.append(row[14])
+                    instance['social'].append(social_one)
+                if row[15] != '':
+                    social_one = []
+                    social_one.append(row[15])
+                    social_one.append(row[16])
+                    instance['social'].append(social_one)
+                if row[17] != '':
+                    social_one = []
+                    social_one.append(row[17])
+                    social_one.append(row[18])
+                    instance['social'].append(social_one)
+                if row[19] != '':
+                    social_one = []
+                    social_one.append(row[19])
+                    social_one.append(row[20])
+                    instance['social'].append(social_one)
+                if row[21] != '':
+                    social_one = []
+                    social_one.append(row[21])
+                    social_one.append(row[22])
+                    instance['social'].append(social_one)
+
+                data.append(instance)
+                line_count+= 1
+    return data
+
 def main():
     cleanDirectories()
 
@@ -435,17 +524,15 @@ def main():
     variables = loadJSON()
 
     if bulk == True:
-        csv = getCSVPath()
-        data = bulkImport(csv)
-        print(data)
+        csv_file = getCSVPath()
+        data = bulkImport(csv_file)
+        print()
+        bulkBuild(data, variables,)
+        print()
 
-    if testing == True:
+    elif testing == True:
         data = populate()
-        for x in range(0, len(data)):
-            dirs = setupDirectories(data[x])
-            instance = data[x]
-            buildTemplate(instance, variables, dirs)
-            print('Generating ' + instance['filename'] + '...')
+        bulkBuild(data, variables,)
         print()
 
     else:
@@ -459,6 +546,7 @@ def main():
         should_upload = getUpload()
         if (should_upload == 'Y'):
             uploadToServer(data)
+            print()
 
     print('Operation completed successfully.')
 
