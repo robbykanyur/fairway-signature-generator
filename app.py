@@ -236,16 +236,20 @@ def getCSVPath():
             print('That file does not exist.')
     return(csv_path)
 
-def uploadProfilePhoto(data):
-    photo_path = getPhotoPath()
-    photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
-
+def s3Uploader(photo_path, photo_filename):
     s3 = boto3.resource('s3')
     try:
         s3.Object('fairway-salesforce', 'signatures/' + photo_filename[0]).load()
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
             s3.meta.client.upload_file(photo_path, 'fairway-salesforce', 'signatures/' + photo_filename[0])
+
+
+def uploadProfilePhoto(data):
+    photo_path = getPhotoPath()
+    photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
+
+    s3Uploader(photo_path, photo_filename)
 
     data['photo'] = photo_filename
     return data
@@ -456,6 +460,7 @@ def bulkImport(csv_file):
                 instance['type'] = row[2].lower()
                 photo_path = row[23].lower()
                 photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
+                s3Uploader(photo_path, photo_filename)
                 instance['photo'] = photo_filename
                 instance['content'].append(row[5])
                 instance['content'].append(row[6])
