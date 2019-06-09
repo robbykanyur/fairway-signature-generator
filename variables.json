@@ -9,7 +9,8 @@
       "reverse": "base-reverse-black.png",
       "application": "base-blue-apply.png",
       "fairwaynow": "base-blue-install.png",
-      "iconColor": "black"
+      "iconColor": "black",
+      "nameColor": "#000000"
     },
     "green": {
       "hex": "#a1df92",
@@ -20,7 +21,8 @@
       "reverse": "base-reverse-black.png",
       "application": "base-green-apply.png",
       "fairwaynow": "base-green-install.png",
-      "iconColor": "black"
+      "iconColor": "black",
+      "nameColor": "#000000"
     },
     "dark": {
       "hex": "#2b4244",
@@ -31,6 +33,7 @@
       "reverse": "base-reverse-color.png",
       "application": "base-gray-apply.png",
       "fairwaynow": "base-gray-install.png",
-      "iconColor": "gray"
+      "iconColor": "gray",
+      "nameColor": "#2b4244"
     }
 }

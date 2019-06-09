@@ -342,6 +342,7 @@ def buildTemplate(data, variables, dirs):
         filedata = filedata.replace('{{ HEX }}', variables['blue']['hex'])
         filedata = filedata.replace('{{ HEX_ALT }}', variables['blue']['alt'])
         filedata = filedata.replace('{{ FAIRWAY }}', variables['blue']['fairway'])
+        filedata = filedata.replace('{{ NAME_COLOR }}', variables['blue']['nameColor'])
 
         if (data['type'] == 'SALES'):
             filedata = filedata.replace('{{ APPLICATION_IMAGE }}', variables['blue']['application'])
@@ -362,6 +363,7 @@ def buildTemplate(data, variables, dirs):
         filedata = filedata.replace('{{ HEX }}', variables['green']['hex'])
         filedata = filedata.replace('{{ HEX_ALT }}', variables['green']['alt'])
         filedata = filedata.replace('{{ FAIRWAY }}', variables['green']['fairway'])
+        filedata = filedata.replace('{{ NAME_COLOR }}', variables['green']['nameColor'])
 
         if (data['type'] == 'SALES'):
             filedata = filedata.replace('{{ APPLICATION_IMAGE }}', variables['green']['application'])
@@ -382,6 +384,7 @@ def buildTemplate(data, variables, dirs):
         filedata = filedata.replace('{{ HEX }}', variables['dark']['hex'])
         filedata = filedata.replace('{{ HEX_ALT }}', variables['dark']['alt'])
         filedata = filedata.replace('{{ FAIRWAY }}', variables['dark']['fairway'])
+        filedata = filedata.replace('{{ NAME_COLOR }}', variables['dark']['nameColor'])
 
         if (data['type'] == 'SALES'):
             filedata = filedata.replace('{{ APPLICATION_IMAGE }}', variables['dark']['application'])
