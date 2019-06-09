@@ -2,6 +2,7 @@
     "aws": "https://d3g7yydxj8payf.cloudfront.net/signatures",
     "blue": {
       "hex": "#85c1dc",
+      "alt": "#a7d9f0",
       "fairway": "base-blue-fairway.png",
       "bmc": "base-bmc-5-black.png",
       "military": "base-military-black.png",
@@ -9,5 +10,27 @@
       "application": "base-blue-apply.png",
       "fairwaynow": "base-blue-install.png",
       "iconColor": "black"
+    },
+    "green": {
+      "hex": "#a1df92",
+      "alt": "#b6e7a9",
+      "fairway": "base-green-fairway.png",
+      "bmc": "base-bmc-5-black.png",
+      "military": "base-military-black.png",
+      "reverse": "base-reverse-black.png",
+      "application": "base-green-apply.png",
+      "fairwaynow": "base-green-install.png",
+      "iconColor": "black"
+    },
+    "dark": {
+      "hex": "#2b4244",
+      "alt": "#b6e7a9",
+      "fairway": "base-gray-fairway.png",
+      "bmc": "base-bmc-5-color.png",
+      "military": "base-military-color.png",
+      "reverse": "base-reverse-color.png",
+      "application": "base-gray-apply.png",
+      "fairwaynow": "base-gray-install.png",
+      "iconColor": "gray"
     }
 }

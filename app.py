@@ -6,6 +6,10 @@ import re
 import json
 import shutil
 from shutil import copyfile
+from paramiko import SSHClient
+from scp import SCPClient
+import sys
+from templates import populate
 
 print("""\
 
@@ -47,6 +51,20 @@ def getSigColor():
 
     return sig_color
 
+def promptForUpload():
+    return input('Upload to prod server? [Y/N] - ').upper()
+
+def getUpload():
+    should_upload = promptForUpload()
+    upload_valid = validateInput(should_upload, ['Y','N'])
+
+    while (upload_valid != True):
+        print('That is not a valid option.')
+        should_upload = promptForUpload()
+        should_upload_valid = validateInput(should_upload, ['Y','N'])
+
+    return should_upload
+
 def promptForSigType():
     return input('[Sales] or [Ops] - ').upper()
 
@@ -63,6 +81,9 @@ def getSigType():
 
 def promptForSigIcon():
     return input('[B]est Company, [M]ilitary, [R]everse - ').upper()
+
+def promptForUpload():
+    return input('Upload to prod server? [Y/N] - ').upper()
 
 def getSigIcon():
     sig_icon = promptForSigIcon()
@@ -169,6 +190,7 @@ def getSocialLinks():
     return social_links
 
 def getData():
+    dataArray = []
     data = {}
 
     data['type'] = getSigType()
@@ -181,14 +203,17 @@ def getData():
     lines_of_content = getNumberOfLines()
     data['content'] = getContentData(lines_of_content)
 
-    data['type'] = 'SALES'
     if (data['type'] == 'SALES'):
         data['links'] = []
         data['links'].append(input('Apply Now Link: '))
         data['links'].append(input('FairwayNOW Link: '))
         data['social'] = getSocialLinks()
+    else:
+        data['social'] = []
+        data['links'] = []
 
-    return data
+    dataArray.append(data)
+    return dataArray
 
 def getPhotoPath():
     photo_exists = False
@@ -220,43 +245,25 @@ def loadJSON():
     variables = json.loads(filedata)
     return variables
 
-def testData():
-    data = {
-        'type': 'SALES', 
-        'color': 'B', 
-        'icon': 'M', 
-        'displayName': 'Robert Kanyur', 
-        'filename': 'kanyur-robert', 
-        'content': [
-            'Marketing Manager',
-            'Phone: 480-346-1371', 
-            'Fax: 888-676-7807', 
-            'www.fairway321.com',
-            '17851 N. 85th St. #250', 
-            'Scottsdale, AZ 85255'], 
-        'links': [
-            'http://google.com', 
-            'http://google.com'], 
-        'social': [
-            ['facebook', 'http://facebook.com'],
-            ['instagram', 'http://instagram.com'],
-            ['yelp', 'http://yelp.com'],
-            ['twitter', 'http://twitter.com']
-        ],
-        'photo': ['profile-brady-jessica.png']
-    }
-    return data
 
-def buildTemplate(data, variables):
+def cleanDirectories():
+    src_dir = os.getcwd()
+    if os.path.isdir(src_dir + '/dist'):
+        shutil.rmtree(src_dir + '/dist')
+
+def setupDirectories(data):
     # create src and dist variables
     src_dir = os.getcwd()
     dist_dir = src_dir + '/dist/' + data['filename']
     dist_file = dist_dir + '/index.html'
-
-    # clean output directory
-    if os.path.isdir(src_dir + '/dist'):
-        shutil.rmtree(src_dir + '/dist')
     os.makedirs(dist_dir)
+
+    return [src_dir, dist_dir, dist_file]
+
+def buildTemplate(data, variables, dirs):
+    src_dir = dirs[0]
+    dist_dir = dirs[1]
+    dist_file = dirs[2]
 
     # copy base file
     copyfile(src_dir + '/templates/base.html', dist_dir + '/index.html')
@@ -333,6 +340,7 @@ def buildTemplate(data, variables):
     # images for blue template
     if (data['color'] == 'B'):
         filedata = filedata.replace('{{ HEX }}', variables['blue']['hex'])
+        filedata = filedata.replace('{{ HEX_ALT }}', variables['blue']['alt'])
         filedata = filedata.replace('{{ FAIRWAY }}', variables['blue']['fairway'])
 
         if (data['type'] == 'SALES'):
@@ -349,16 +357,85 @@ def buildTemplate(data, variables):
         for x in range(1,(len(data['social']) + 1)):
             filedata = filedata.replace('{{ SOCIAL_IMAGE_' + str(x) + ' }}', 'social-' + data['social'][x - 1][0] + '-' + variables['blue']['iconColor'] + '.png')
 
+    # images for green template
+    if (data['color'] == 'G'):
+        filedata = filedata.replace('{{ HEX }}', variables['green']['hex'])
+        filedata = filedata.replace('{{ HEX_ALT }}', variables['green']['alt'])
+        filedata = filedata.replace('{{ FAIRWAY }}', variables['green']['fairway'])
+
+        if (data['type'] == 'SALES'):
+            filedata = filedata.replace('{{ APPLICATION_IMAGE }}', variables['green']['application'])
+            filedata = filedata.replace('{{ FAIRWAYNOW_IMAGE }}', variables['green']['fairwaynow'])
+
+        if (data['icon'] == 'B'):
+            filedata = filedata.replace('{{ ICON }}', variables['green']['bmc'])
+        if (data['icon'] == 'M'):
+            filedata = filedata.replace('{{ ICON }}', variables['green']['military'])
+        if (data['icon'] == 'R'):
+            filedata = filedata.replace('{{ ICON }}', variables['green']['reverse'])
+
+        for x in range(1,(len(data['social']) + 1)):
+            filedata = filedata.replace('{{ SOCIAL_IMAGE_' + str(x) + ' }}', 'social-' + data['social'][x - 1][0] + '-' + variables['green']['iconColor'] + '.png')
+
+    # images for dark template
+    if (data['color'] == 'D'):
+        filedata = filedata.replace('{{ HEX }}', variables['dark']['hex'])
+        filedata = filedata.replace('{{ HEX_ALT }}', variables['dark']['alt'])
+        filedata = filedata.replace('{{ FAIRWAY }}', variables['dark']['fairway'])
+
+        if (data['type'] == 'SALES'):
+            filedata = filedata.replace('{{ APPLICATION_IMAGE }}', variables['dark']['application'])
+            filedata = filedata.replace('{{ FAIRWAYNOW_IMAGE }}', variables['dark']['fairwaynow'])
+
+        if (data['icon'] == 'B'):
+            filedata = filedata.replace('{{ ICON }}', variables['dark']['bmc'])
+        if (data['icon'] == 'M'):
+            filedata = filedata.replace('{{ ICON }}', variables['dark']['military'])
+        if (data['icon'] == 'R'):
+            filedata = filedata.replace('{{ ICON }}', variables['dark']['reverse'])
+
+        for x in range(1,(len(data['social']) + 1)):
+            filedata = filedata.replace('{{ SOCIAL_IMAGE_' + str(x) + ' }}', 'social-' + data['social'][x - 1][0] + '-' + variables['dark']['iconColor'] + '.png')
+
     with open(dist_file, 'w') as file:
         file.write(filedata)
 
-def main():
-    # data = getData()
-    # data = uploadProfilePhoto(data)
+def uploadToServer(data):
+    print ('Uploading folder to prod server...')
+    foldername = os.getcwd() + '/dist/' + data['filename']
+    os.system('scp -r ' + foldername + ' deploy@prod:html/fairway321.com/signatures')
 
-    data = testData()
+def main():
+    cleanDirectories()
+
+    if (len(sys.argv) > 1):
+        if(sys.argv[1] == '--test'):
+            testing = True
+        else:
+            testing = False
+    else:
+        testing = False
     variables = loadJSON()
-    buildTemplate(data, variables)
+
+    if testing == True:
+        data = populate()
+        for x in range(0, len(data)):
+            dirs = setupDirectories(data[x])
+            instance = data[x]
+            buildTemplate(instance, variables, dirs)
+            print('Generating ' + instance['filename'] + '...')
+        print()
+
+    else:
+        data = getData()[0]
+        dirs = setupDirectories(data)
+        data = uploadProfilePhoto(data)
+        buildTemplate(data, variables, dirs)
+
+    should_upload = getUpload()
+    if (should_upload == 'Y'):
+        uploadToServer(data)
+    print('Operation completed successfully.')
 
 if __name__ == '__main__':
     main()
