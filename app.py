@@ -10,6 +10,7 @@ from paramiko import SSHClient
 from scp import SCPClient
 import sys
 from templates import populate
+from bulk import bulkImport
 
 print("""\
 
@@ -225,6 +226,16 @@ def getPhotoPath():
             print('That file does not exist.')
     return(photo_path)
 
+def getCSVPath():
+    csv_exists = False
+    while (csv_exists == False):
+        csv_path = input('Absolute path to CSV file: ')
+        if (path.exists(csv_path)):
+            break
+        else:
+            print('That file does not exist.')
+    return(csv_path)
+
 def uploadProfilePhoto(data):
     photo_path = getPhotoPath()
     photo_filename = re.findall(r'^.*\/(.*)$', photo_path)
@@ -404,21 +415,29 @@ def buildTemplate(data, variables, dirs):
         file.write(filedata)
 
 def uploadToServer(data):
-    print ('Uploading folder to prod server...')
-    foldername = os.getcwd() + '/dist/' + data['filename']
-    os.system('scp -r ' + foldername + ' deploy@prod:html/fairway321.com/signatures')
+    for x in data:
+        foldername = os.getcwd() + '/dist/' + x['filename']
+        print ('Uploading ' + foldername + ' to prod server...')
+        os.system('scp -r ' + foldername + ' deploy@prod:html/fairway321.com/signatures')
 
 def main():
     cleanDirectories()
 
+    testing = False
+    bulk = False
     if (len(sys.argv) > 1):
         if(sys.argv[1] == '--test'):
             testing = True
-        else:
-            testing = False
+        if(sys.argv[1] == '--bulk'):
+            bulk = True
     else:
         testing = False
     variables = loadJSON()
+
+    if bulk == True:
+        csv = getCSVPath()
+        data = bulkImport(csv)
+        print(data)
 
     if testing == True:
         data = populate()
@@ -430,14 +449,17 @@ def main():
         print()
 
     else:
-        data = getData()[0]
-        dirs = setupDirectories(data)
-        data = uploadProfilePhoto(data)
-        buildTemplate(data, variables, dirs)
+        data = getData()
+        instance = data[0]
+        dirs = setupDirectories(instance)
+        instance = uploadProfilePhoto(instance)
+        buildTemplate(instance, variables, dirs)
 
-    should_upload = getUpload()
-    if (should_upload == 'Y'):
-        uploadToServer(data)
+    if testing == False:
+        should_upload = getUpload()
+        if (should_upload == 'Y'):
+            uploadToServer(data)
+
     print('Operation completed successfully.')
 
 if __name__ == '__main__':
