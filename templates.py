@@ -121,29 +121,6 @@ def populate():
             'photo': ['profile-brady-jessica.png']
         },
         {
-            'displayName': 'GREEN ICON BEST',
-            'filename': 'test/icon-green-best',
-            'type': 'SALES',
-            'color': 'G',
-            'icon': 'B',
-            'content': [
-                'Marketing Manager',
-                'Phone: 480-346-1371',
-                'Fax: 888-676-7807',
-                '17851 N. 85th St. #250',
-                'Scottsdale, AZ 85255',
-                'www.fairway321.com'],
-            'links': [
-                'http://google.com',
-                'http://google.com'],
-            'social': [
-                ['facebook', 'http://facebook.com'],
-                ['instagram', 'http://instagram.com'],
-                ['twitter', 'http://twitter.com']
-            ],
-            'photo': ['profile-brady-jessica.png']
-        },
-        {
             'displayName': 'GREEN ICON MILITARY',
             'filename': 'test/green-icon-military',
             'type': 'SALES',
@@ -166,6 +143,30 @@ def populate():
             ],
             'photo': ['profile-brady-jessica.png']
         },
+        {
+            'displayName': 'GREEN ICON BEST',
+            'filename': 'test/green-icon-best',
+            'type': 'SALES',
+            'color': 'G',
+            'icon': 'B',
+            'content': [
+                'Marketing Manager',
+                'Phone: 480-346-1371',
+                'Fax: 888-676-7807',
+                '17851 N. 85th St. #250',
+                'Scottsdale, AZ 85255',
+                'www.fairway321.com'],
+            'links': [
+                'http://google.com',
+                'http://google.com'],
+            'social': [
+                ['facebook', 'http://facebook.com'],
+                ['instagram', 'http://instagram.com'],
+                ['twitter', 'http://twitter.com']
+            ],
+            'photo': ['profile-brady-jessica.png']
+        },
+
         {
             'displayName': 'GREEN ICON REVERSE',
             'filename': 'test/green-icon-reverse',
