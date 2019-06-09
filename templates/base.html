@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Email Signature - {% CONTACT_NAME %}</title>
+    <title>Email Signature - {{ CONTACT_NAME }}</title>
 
     <!--[if gt mso 15]>
       <style type="text/css" media="all">
@@ -37,7 +37,7 @@
                         
                       </td>
                       <td width="92" height="115" bgcolor="#fafafa">
-                        <img src="{% AWS %}/{% PROFILE_FILENAME %}" width="92" style="display: block;" border="0">
+                        <img src="{{ AWS }}/{{ PROFILE_FILENAME }}" width="92" style="display: block;" border="0">
                       </td>
                       <td width="12" height="115" bgcolor="#fafafa">
                         
@@ -46,18 +46,18 @@
                         <table width="284" cellpadding="0" cellspacing="0" border="0" bgcolor="fafafa">
                           <tr>
                             <td width="284" height="30">
-                                <h1 style="margin: 0; margin-top: 8px; color: #000000; font-size: 18px; font-family: 'Trebuchet MS', arial, sans-serif;">{% CONTACT_NAME %}</h1>
+                                <h1 style="margin: 0; margin-top: 8px; color: #000000; font-size: 18px; font-family: 'Trebuchet MS', arial, sans-serif;">{{ CONTACT_NAME }}</h1>
                             </td>
                           </tr>
                         </table>
                         <table width="284" cellpadding="0" cellspacing="0" border="0" bgcolor="fafafa">
                           <tr>
-                            {% CONTENT %}
+                            {{ CONTENT }}
                           </tr>
                         </table>
                       </td>
                       <td width="105" height="115" bgcolor="#fafafa">
-                        <img src="{% AWS %}/{% ICON %}" width="105" style="display: block;" border="0">
+                        <img src="{{ AWS }}/{{ ICON }}" width="105" style="display: block;" border="0">
                       </td>
                       <td width="8" height="115" bgcolor="#f0f0f0">
                       
@@ -76,7 +76,7 @@
                     </table>
                     <table width="508" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
                         <tr>
-                          <td width="500" height="11" bgcolor="#85c1dc" style="font-size: 11px; line-height: 11px;">
+                          <td width="500" height="11" bgcolor="{{ HEX }}" style="font-size: 11px; line-height: 11px;">
                             &nbsp; 
                           </td>
                           <td width="8" height="11" bgcolor="#f0f0f0" style="font-size: 11px; line-height: 11px;">
@@ -86,25 +86,17 @@
                     </table>
                     <table width="508" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
                         <tr>
-                          <td width="16" height="36" bgcolor="#85c1dc">
+                          <td width="16" height="36" bgcolor="{{ HEX }}">
     
                           </td>
-                          <td width="118" height="36" bgcolor="#85c1dc">
-                            <img src="{% AWS %}/{% FAIRWAY_BLUE %}" width="118" style="display: block;" border="0">
+                          <td width="118" height="36" bgcolor="{{ HEX }}">
+                            <img src="{{ AWS }}/{{ FAIRWAY }}" width="118" style="display: block;" border="0">
                           </td>
-                          <td width="48" height="36" bgcolor="#85c1dc">
+                          <td width="48" height="36" bgcolor="{{ HEX }}">
     
                           </td>
-                          <td width="143" height="36" bgcolor="#85c1dc">
-                            {% APPLICATION %}
-                          </td>
-                          <td width="16" height="36" bgcolor="#85c1dc">
-    
-                          </td>
-                          <td width="143" height="36" bgcolor="#85c1dc">
-                            {% FAIRWAY_NOW %}
-                          </td>
-                          <td width="16" height="36" bgcolor="#85c1dc">
+                          {{ BUTTONS }}
+                          <td width="16" height="36" bgcolor="{{ HEX }}">
     
                           </td>
                           <td width="8" height="36" bgcolor="#f0f0f0">
@@ -114,7 +106,7 @@
                     </table>
                     <table width="508" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
                         <tr>
-                          <td width="500" height="11" bgcolor="#85c1dc" style="font-size: 11px; line-height: 11px;">
+                          <td width="500" height="11" bgcolor="{{ HEX }}" style="font-size: 11px; line-height: 11px;">
                             &nbsp; 
                           </td>
                           <td width="8" height="11" bgcolor="#f0f0f0" style="font-size: 11px; line-height: 11px;">
@@ -161,7 +153,7 @@
                           </td>
                         </tr>
                     </table>
-                    {% SOCIAL %}
+                    {{ SOCIAL }}
                 </td>
               </tr>
             </table>

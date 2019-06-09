@@ -224,7 +224,7 @@ def testData():
     data = {
         'type': 'SALES', 
         'color': 'B', 
-        'icon': 'B', 
+        'icon': 'M', 
         'displayName': 'Robert Kanyur', 
         'filename': 'kanyur-robert', 
         'content': [
@@ -238,9 +238,11 @@ def testData():
             'http://google.com', 
             'http://google.com'], 
         'social': [
-            ['facebook', 'http://facebook.com'], 
-            ['instagram', 'http://instagram.com']
-        ], 
+            ['facebook', 'http://facebook.com'],
+            ['instagram', 'http://instagram.com'],
+            ['yelp', 'http://yelp.com'],
+            ['twitter', 'http://twitter.com']
+        ],
         'photo': ['profile-brady-jessica.png']
     }
     return data
@@ -270,7 +272,21 @@ def buildTemplate(data, variables):
         with open(src_dir + '/templates/content_04.html', 'r') as file:
             contentdata = file.read()
 
-    filedata = filedata.replace('{% CONTENT %}', contentdata)
+    filedata = filedata.replace('{{ CONTENT }}', contentdata)
+    with open(dist_file, 'w') as file:
+        file.write(filedata)
+
+    # insert buttons section
+    with open(dist_file, 'r') as file:
+        filedata = file.read()
+    if (data['type'] == 'SALES'):
+        with open(src_dir + '/templates/buttons_sales.html', 'r') as file:
+            contentdata = file.read()
+    else:
+        with open(src_dir + '/templates/buttons_ops.html', 'r') as file:
+            contentdata = file.read()
+
+    filedata = filedata.replace('{{ BUTTONS }}', contentdata)
     with open(dist_file, 'w') as file:
         file.write(filedata)
 
@@ -296,7 +312,7 @@ def buildTemplate(data, variables):
     else:
         socialdata = ''
 
-    filedata = filedata.replace('{% SOCIAL %}', socialdata)
+    filedata = filedata.replace('{{ SOCIAL }}', socialdata)
     with open(dist_file, 'w') as file:
         file.write(filedata)
 
@@ -304,15 +320,34 @@ def buildTemplate(data, variables):
     with open(dist_file, 'r') as file:
         filedata = file.read()
 
-    filedata = filedata.replace('{% AWS %}', variables['aws'])
-    filedata = filedata.replace('{% PROFILE_FILENAME %}', data['photo'][0])
-    filedata = filedata.replace('{% CONTACT_NAME %}', data['displayName'])
+    filedata = filedata.replace('{{ AWS }}', variables['aws'])
+    filedata = filedata.replace('{{ PROFILE_FILENAME }}', data['photo'][0])
+    filedata = filedata.replace('{{ CONTACT_NAME }}', data['displayName'])
     for x in range(len(data['content'])):
-        filedata = filedata.replace('{% CONTENT_0' + str((x + 1)) + ' %}', data['content'][x])
+        filedata = filedata.replace('{{ CONTENT_0' + str((x + 1)) + ' }}', data['content'][x])
 
     if (data['type'] == 'SALES'):
-        filedata = filedata.replace('{% APPLICATION %}', data['links'][0])
-        filedata = filedata.replace('{% FAIRWAY_NOW %}', data['links'][1])
+        filedata = filedata.replace('{{ APPLICATION_LINK }}', data['links'][0])
+        filedata = filedata.replace('{{ FAIRWAYNOW_LINK }}', data['links'][1])
+
+    # images for blue template
+    if (data['color'] == 'B'):
+        filedata = filedata.replace('{{ HEX }}', variables['blue']['hex'])
+        filedata = filedata.replace('{{ FAIRWAY }}', variables['blue']['fairway'])
+
+        if (data['type'] == 'SALES'):
+            filedata = filedata.replace('{{ APPLICATION_IMAGE }}', variables['blue']['application'])
+            filedata = filedata.replace('{{ FAIRWAYNOW_IMAGE }}', variables['blue']['fairwaynow'])
+
+        if (data['icon'] == 'B'):
+            filedata = filedata.replace('{{ ICON }}', variables['blue']['bmc'])
+        if (data['icon'] == 'M'):
+            filedata = filedata.replace('{{ ICON }}', variables['blue']['military'])
+        if (data['icon'] == 'R'):
+            filedata = filedata.replace('{{ ICON }}', variables['blue']['reverse'])
+
+        for x in range(1,(len(data['social']) + 1)):
+            filedata = filedata.replace('{{ SOCIAL_IMAGE_' + str(x) + ' }}', 'social-' + data['social'][x - 1][0] + '-' + variables['blue']['iconColor'] + '.png')
 
     with open(dist_file, 'w') as file:
         file.write(filedata)
