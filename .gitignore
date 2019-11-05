@@ -126,3 +126,4 @@ dmypy.json
 # Custom
 .aws/
 .vscode/
+/public

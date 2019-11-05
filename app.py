@@ -11,6 +11,7 @@ from paramiko import SSHClient
 from scp import SCPClient
 import sys
 from templates import populate
+from PIL import Image
 
 print("""\
 
@@ -226,6 +227,33 @@ def getPhotoPath():
             print('That file does not exist.')
     return(photo_path)
 
+def processImage(image_path, filename):
+    photo = Image.open(image_path)
+    photo = resizeImage(photo)
+    photo = cropImage(photo)
+    photo.save(os.getcwd() + "/public/" + filename + ".jpg", quality=90, optimize=True, progressive=True)
+
+def resizeImage(photo):
+    basewidth = 92
+    wpercent = (basewidth / float(photo.size[0]))
+    hsize = int((float(photo.size[1]) * float(wpercent)))
+    photo = photo.resize((basewidth, hsize), Image.LANCZOS)
+    return photo
+
+def cropImage(photo):
+    height = photo.size[1]
+
+    if height < 116:
+        return photo
+
+    crop_each = (height - 115) / 2
+    left = 0
+    upper = crop_each
+    right = photo.size[0]
+    lower = height - crop_each
+
+    return photo.crop((left, upper, right, lower))
+
 def getCSVPath():
     csv_exists = False
     while (csv_exists == False):
@@ -237,12 +265,15 @@ def getCSVPath():
     return(csv_path)
 
 def s3Uploader(photo_path, photo_filename):
+    processImage(photo_path, photo_filename[0].split('.')[0])
+    processed_photo_path = os.getcwd() + '/public/' + photo_filename[0]
+
     s3 = boto3.resource('s3')
     try:
-        s3.Object('fairway-salesforce', 'signatures/' + photo_filename[0]).load()
+        s3.Object('fairway-salesforce', 'signatures/' + processed_photo_path).load()
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
-            s3.meta.client.upload_file(photo_path, 'fairway-salesforce', 'signatures/' + photo_filename[0])
+            s3.meta.client.upload_file(processed_photo_path, 'fairway-salesforce', 'signatures/' + photo_filename[0])
 
 
 def uploadProfilePhoto(data):
